@@ -1,0 +1,36 @@
+name: Upload Source Code Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Create zip package
+        run: |
+          # 获取当前发布版本号
+          RELEASE_VERSION=$(echo "${{ github.ref }}" | sed 's/refs\/tags\///')
+          
+          # 创建打包目录
+          mkdir -p release
+          
+          # 打包源码（排除.git目录）
+          zip -r release/source-code-$RELEASE_VERSION.zip . -x "*.git*"
+          
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: release/source-code-${{ github.event.release.tag_name }}.zip
+          asset_name: source-code-${{ github.event.release.tag_name }}.zip
+          asset_content_type: application/zip
