@@ -2,9 +2,20 @@ name: Build and Release
 
 on:
   workflow_dispatch:
+    inputs:
+      boards:
+        description: 'List of boards to build (comma separated identifiers)'
+        required: false
+        type: string
+        default: "panther-x2"
+      publish:
+        description: 'Publish build artifacts to R2 (not applicable to forks)'
+        required: false
+        type: boolean
+        default: false
+
   push:
-    tags:
-      - 'v*'  # 匹配 v 开头的标签，如 v1.0.0
+
 
 jobs:
   build:
@@ -31,7 +42,7 @@ jobs:
           TAG_NAME=$(echo "${GITHUB_REF#refs/tags/}")
           echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
           echo "Tag name: $TAG_NAME"
-
+          echo ${{ github.event.inputs.boards }}
       - name: Create archive
         run: |
           ls -lah ..
