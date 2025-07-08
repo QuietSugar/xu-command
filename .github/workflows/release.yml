@@ -1,36 +1,55 @@
-name: Upload Source Code Release
+name: Build and Release
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 'v*'  # 匹配 v 开头的标签，如 v1.0.0
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      
-      - name: Create zip package
+          fetch-depth: 0  # 获取完整的提交历史
+
+      - name: Get project name
+        id: project_name
         run: |
-          # 获取当前发布版本号
-          RELEASE_VERSION=$(echo "${{ github.ref }}" | sed 's/refs\/tags\///')
-          
-          # 创建打包目录
-          mkdir -p release
-          
-          # 打包源码（排除.git目录）
-          zip -r release/source-code-$RELEASE_VERSION.zip . -x "*.git*"
-          
-      - name: Upload release asset
-        uses: actions/upload-release-asset@v1
+          # 获取 GitHub 项目名（格式：owner/repo）
+          PROJECT_NAME=$(basename "$GITHUB_REPOSITORY")
+          echo "project_name=$PROJECT_NAME" >> $GITHUB_ENV
+          echo "Project name: $PROJECT_NAME"
+
+      - name: Get tag name
+        id: tag_name
+        run: |
+          # 获取当前触发的 tag 名称
+          TAG_NAME=$(echo "${GITHUB_REF#refs/tags/}")
+          echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
+          echo "Tag name: $TAG_NAME"
+
+      - name: Create archive directory
+        run: |
+          mkdir -p "$ENV.project_name"
+          cp -r ./* "$ENV.project_name/"
+
+      - name: Package source code
+        run: |
+          # 创建 tar.gz 和 zip 格式的压缩包
+          tar -czvf "${{ env.project_name }}-${{ env.tag_name }}.tar.gz" "${{ env.project_name }}"
+          zip -r "${{ env.project_name }}-${{ env.tag_name }}.zip" "${{ env.project_name }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.tag_name }}
+          name: Release ${{ env.tag_name }}
+          files: |
+            ${{ env.project_name }}-${{ env.tag_name }}.tar.gz
+            ${{ env.project_name }}-${{ env.tag_name }}.zip
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: release/source-code-${{ github.event.release.tag_name }}.zip
-          asset_name: source-code-${{ github.event.release.tag_name }}.zip
-          asset_content_type: application/zip
