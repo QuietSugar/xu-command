@@ -34,8 +34,8 @@ jobs:
       - name: Create archive directory
         run: |
           ls -lah
-          mkdir -p "$ENV.project_name"
-          cp -r ./* "$ENV.project_name/"
+          mkdir -p ${{ env.project_name }}
+          cp -r ./* "${{ env.project_name }}/"
 
       - name: Package source code
         run: |
