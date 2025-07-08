@@ -33,7 +33,7 @@ jobs:
       - name: Get version
         id: tag_name
         run: |
-          if [[ "${{ github.event_name }}" == push ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == push ]]; then
           # 处理 Tag 触发的情况
           VERSION_NAME="${GITHUB_REF#refs/tags/}"
           echo "Tag 触发: 使用 Tag 名称 $VERSION_NAME"
