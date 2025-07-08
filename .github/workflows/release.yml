@@ -9,8 +9,6 @@ on:
         type: string
         default: "v1.0.0.0"
   push:
-    branches:
-      - debug
     tags:
       - 'v*'  # 匹配 v 开头的标签，如 v1.0.0
 
