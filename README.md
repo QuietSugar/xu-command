@@ -1,0 +1,2 @@
+# xu-command
+self command
