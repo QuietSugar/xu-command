@@ -31,9 +31,11 @@ jobs:
           echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
           echo "Tag name: $TAG_NAME"
 
-      - name: Create archive directory
+      - name: Create archive
         run: |
-          ls -lah
+          ls -lah ..
+        
+          
           mkdir -p ${{ env.project_name }}
           cp -r ./* "${{ env.project_name }}/"
 
