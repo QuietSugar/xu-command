@@ -56,8 +56,8 @@ jobs:
       - name: Create archive
         run: |
           cd ..
-          tar -czvf "${{ env.project_name }}-${{ env.version_name }}.tar.gz"  --exclude='.git'  "${{ env.project_name }}"
-          zip -r "${{ env.project_name }}-${{ env.version_name }}.zip" "${{ env.project_name }}"
+          tar --exclude='.*' -czvf "${{ env.project_name }}-${{ env.version_name }}.tar.gz"  --exclude='.git'  "${{ env.project_name }}"
+          zip -r "${{ env.project_name }}-${{ env.version_name }}.zip" "${{ env.project_name }}" -x '*/\.*'
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
