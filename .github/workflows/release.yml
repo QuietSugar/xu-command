@@ -7,7 +7,7 @@ on:
         description: 'set version'
         required: false
         type: string
-        default: "v1.0.0.0"
+        default: "v1.0.0"
   push:
     tags:
       - 'v*'  # 匹配 v 开头的标签，如 v1.0.0
@@ -33,14 +33,10 @@ jobs:
       - name: Get version
         id: tag_name
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+          if [[ "${{ github.event_name }}" == push ]]; then
           # 处理 Tag 触发的情况
           VERSION_NAME="${GITHUB_REF#refs/tags/}"
           echo "Tag 触发: 使用 Tag 名称 $VERSION_NAME"
-          elif [[ "$GITHUB_REF" == refs/heads/* ]]; then
-          # 处理分支触发的情况
-          VERSION_NAME="${GITHUB_REF#refs/heads/}"
-          echo "分支触发: 使用分支名称 $VERSION_NAME"
           elif [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
           # 处理手动触发的情况
           VERSION_NAME=${{ github.event.inputs.version }}
