@@ -33,12 +33,14 @@ jobs:
 
       - name: Create archive directory
         run: |
+          ls -lah
           mkdir -p "$ENV.project_name"
           cp -r ./* "$ENV.project_name/"
 
       - name: Package source code
         run: |
           # 创建 tar.gz 和 zip 格式的压缩包
+          ls -lah
           tar -czvf "${{ env.project_name }}-${{ env.tag_name }}.tar.gz" "${{ env.project_name }}"
           zip -r "${{ env.project_name }}-${{ env.tag_name }}.zip" "${{ env.project_name }}"
 
