@@ -64,8 +64,8 @@ jobs:
           tag_name: ${{ env.version_name }}
           name: Release ${{ env.version_name }}
           files: |
-            ${{ env.project_name }}-${{ env.version_name }}.tar.gz
-            ${{ env.project_name }}-${{ env.version_name }}.zip
+            ../${{ env.project_name }}-${{ env.version_name }}.tar.gz
+            ../${{ env.project_name }}-${{ env.version_name }}.zip
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
