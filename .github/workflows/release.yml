@@ -2,6 +2,12 @@ name: Build and Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'set version'
+        required: false
+        type: string
+        default: "v1.0.0.0"
   push:
     branches:
       - debug
@@ -26,27 +32,40 @@ jobs:
           echo "project_name=$PROJECT_NAME" >> $GITHUB_ENV
           echo "Project name: $PROJECT_NAME"
 
-      - name: Get tag name
+      - name: Get version
         id: tag_name
         run: |
-          # 获取当前触发的 tag 名称
-          TAG_NAME=$(echo "${GITHUB_REF#refs/tags/}")
-          echo "tag_name=$TAG_NAME" >> $GITHUB_ENV
-          echo "Tag name: $TAG_NAME"
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+          # 处理 Tag 触发的情况
+          VERSION_NAME="${GITHUB_REF#refs/tags/}"
+          echo "Tag 触发: 使用 Tag 名称 $VERSION_NAME"
+          elif [[ "$GITHUB_REF" == refs/heads/* ]]; then
+          # 处理分支触发的情况
+          VERSION_NAME="${GITHUB_REF#refs/heads/}"
+          echo "分支触发: 使用分支名称 $VERSION_NAME"
+          elif [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+          # 处理手动触发的情况
+          VERSION_NAME=${{ github.event.inputs.version }}
+          echo "手动触发: 使用版本 $VERSION_NAME"
+          else
+          echo "未知触发类型，无法确定版本号！" >&2
+          exit 1
+          fi
+          echo "version_name=$VERSION_NAME" >> $GITHUB_ENV
 
       - name: Create archive
         run: |
           cd ..
-          tar -czvf "${{ env.project_name }}-${{ env.tag_name }}.tar.gz"  --exclude='.git'  "${{ env.project_name }}"
-          zip -r "${{ env.project_name }}-${{ env.tag_name }}.zip" "${{ env.project_name }}"
+          tar -czvf "${{ env.project_name }}-${{ env.version_name }}.tar.gz"  --exclude='.git'  "${{ env.project_name }}"
+          zip -r "${{ env.project_name }}-${{ env.version_name }}.zip" "${{ env.project_name }}"
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.tag_name }}
-          name: Release ${{ env.tag_name }}
+          tag_name: ${{ env.version_name }}
+          name: Release ${{ env.version_name }}
           files: |
-            ${{ env.project_name }}-${{ env.tag_name }}.tar.gz
-            ${{ env.project_name }}-${{ env.tag_name }}.zip
+            ${{ env.project_name }}-${{ env.version_name }}.tar.gz
+            ${{ env.project_name }}-${{ env.version_name }}.zip
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
