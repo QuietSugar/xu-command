@@ -1,12 +1,14 @@
 #!/bin/bash
 # ====================================================
-#   @version:		1.0.0
+#   @version:		1.0.2
 #   遍历寻找目录下所有带 .git的目录,
 #	将它归档到 固定目录中
 #
 # ====================================================
 
 . "$(dirname "$0")/lib/init.sh"
+
+. "$(dirname "$0")/lib/git_tool.sh"
 
 LOG_LEVEL_STDOUT="INFO"
 
@@ -42,7 +44,7 @@ find_git_dirs() {
         log_success ""
         return
     fi
-
+    
     # 遍历当前目录的所有子目录
     for subdir in "$this_dir"/*; do
         # 如果是目录且不是符号链接（避免循环）
@@ -69,45 +71,23 @@ move_git_dir() {
     log_debug "【目标】项目名称:  $project_name"
     # 不带前缀和后缀的 git url eg 1.2.3.4/a/b/c
     git_clone_to_dir=${project_dir%/*}
-    # 替换路径中的冒号(windows不支持该字符)
-    git_clone_to_dir=$(echo "$git_clone_to_dir" | sed 's#:#_#')
     log_debug "【目标】所在目录相对路径:  $git_clone_to_dir"
     absolute_project_dir="$TARGET_BASE_ABS_PATH/$git_clone_to_dir"
     log_debug "【目标】所在目录绝对路径:  $absolute_project_dir"
-
+    
     if [ ! -d "$absolute_project_dir" ]; then
         mkdir -p "$absolute_project_dir"
     fi
     local new_path=$absolute_project_dir/$project_name
-    log_debug "【new_pathnew_pathnew_pathnew_path:  $new_path"
+    log_debug "【new_path:  $new_path"
     if [ ! -d "$new_path" ]; then
         # 使用mv实现移动和重命名
-        log_debug "从:              $source_abs_dir"
-        log_debug "移动并重命名为   $new_path"
+        log_success "从:              $source_abs_dir"
+        log_success "移动并重命名为   $new_path"
         mv -v "$source_abs_dir" "$new_path"
     else
         log_warning "目录已存在已存在,无法移动"$new_path
     fi
-}
-
-# 规范化文件名 尽量使得三端都支持
-function make_filename_safe() {
-    local dirPath="$1"
-    # 去除前后空白（-e 执行多个编辑命令）
-    local dirPath=$(echo "$dirPath" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-    # 去除特定前缀
-    dirPath="${dirPath#https://gh-proxy.com/}"
-    dirPath="${dirPath#https://}"
-    dirPath="${dirPath#http://}"
-    dirPath="${dirPath#git@}"
-
-    # 将所有冒号替换为斜杠
-    dirPath="${dirPath//:/\/}"
-
-    # 去除末尾的.git
-    dirPath="${dirPath%.git}"
-
-    echo "$dirPath"
 }
 
 
