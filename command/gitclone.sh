@@ -26,12 +26,11 @@ fi
 set -e
 # 加载环境变量
 source load_config git-plus
- 
-baseDir="$HOME/git-repo"
-# 不存在则创建
-if [ ! -d "$baseDir" ]; then
-  mkdir -p "$baseDir"
-fi
+
+
+local_git_repo_path=$(get_git_repo_path)
+
+
 # --------->>>>>>>>>>> 准备基础目录完毕
 
 # 优先使用命令行后跟着的,如果命令行中未设置,尝试从配置文件中读取
@@ -59,7 +58,7 @@ project_name=$(echo ${project_dir##*/} )
 git_clone_to_dir=${project_dir%/*}
 # 替换路径中的冒号(windows不支持该字符)
 git_clone_to_dir=$(echo "$git_clone_to_dir" | sed 's#:#_#')
-absolute_project_dir="$baseDir/$git_clone_to_dir"
+absolute_project_dir="$local_git_repo_path/$git_clone_to_dir"
 
 if [ ! -d "$absolute_project_dir" ]; then
   mkdir -p "$absolute_project_dir"

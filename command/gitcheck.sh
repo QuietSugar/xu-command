@@ -3,10 +3,10 @@
 #   寻找目录下所有带 .git的目录,
 #	并且检查是否有未提交文件
 #	需要传入参数 比如当前目录 .
-# 
+#
 # ====================================================
 
-. $(dirname "$0")/lib/init.sh
+. "$(dirname "$0")/lib/init.sh"
 
 function lm_traverse_dir() {
 	# 判断.git文件是否存在,如果存在,表示当前目录是一个git仓库
@@ -25,13 +25,13 @@ function lm_traverse_dir() {
 			# 获取stash数量
 			stash_count=$(git stash list | wc -l)
 			stash_count=$(echo $stash_count | tr -d ' ')  # 去除可能的空白字符
-			
+
 			# 判断并输出结果
 			if [ "$stash_count" -ne 0 ]; then
 			    this_repo_status+="[储藏$(stash_count)]"
 			fi
 
-   
+
 		else
 		  this_repo_status+="[无远程]"
 		fi

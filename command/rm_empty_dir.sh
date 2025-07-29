@@ -5,7 +5,7 @@
 #
 # ====================================================
 
-. $(dirname "$0")/lib/init.sh
+. "$(dirname "$0")/lib/init.sh"
 
 LOG_LEVEL_STDOUT="INFO"
 set -e

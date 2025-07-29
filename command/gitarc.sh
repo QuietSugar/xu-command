@@ -6,7 +6,7 @@
 #
 # ====================================================
 
-. $(dirname "$0")/lib/init.sh
+. "$(dirname "$0")/lib/init.sh"
 
 LOG_LEVEL_STDOUT="INFO"
 
@@ -26,10 +26,7 @@ if [ ! -d "$SOURCE_BASE_ABS_PATH" ]; then
     exit 1
 fi
 # 目标基础目录
-TARGET_BASE_ABS_PATH="$HOME/git-repo"
-if [ ! -d "$TARGET_BASE_ABS_PATH" ]; then
-    mkdir -p "$TARGET_BASE_ABS_PATH"
-fi
+TARGET_BASE_ABS_PATH=$(get_git_repo_path)
 
 # 查找所有.git目录的函数
 find_git_dirs() {
@@ -113,21 +110,7 @@ function make_filename_safe() {
     echo "$dirPath"
 }
 
-# 判断字符串是否为 HTTPS/HTTP 或 SSH 协议的有效 Git 地址（支持端口和 IP）
-is_git_url_https_ssh() {
-    local url="$1"
-    # 正则表达式：
-    # 1. HTTPS/HTTP：支持域名/IP + 可选端口 + 路径 + 可选.git后缀
-    # 2. SSH：支持用户名@域名/IP + 可选端口 + 路径 + 可选.git后缀
-    local git_regex='^(https?)://([a-zA-Z0-9.-]+|([0-9]{1,3}\.){3}[0-9]{1,3})(:[0-9]{1,5})?(/[a-zA-Z0-9._/-]+)*(\.git)?$|^[a-zA-Z0-9._-]+@([a-zA-Z0-9.-]+|([0-9]{1,3}\.){3}[0-9]{1,3})(:[0-9]{1,5})?:[a-zA-Z0-9._/-]+(\.git)?$'
 
-    if [[ "$url" =~ $git_regex ]]; then
-        return 0 # 有效
-    else
-        log_error "无效的 Git 地址: $url"
-        exit 1
-    fi
-}
 
 # 调用函数开始查找
 find_git_dirs $SOURCE_BASE_ABS_PATH
